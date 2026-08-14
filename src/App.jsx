@@ -208,7 +208,6 @@ function UseCases() {
         <div className="feature-list">
           {item.features.map((candidate, index) => (
             <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => setFeatureIndex(index)}>
-              <span className="feature-number">0{index + 1}</span>
               <span className="feature-copy"><strong>{candidate.title}</strong><small>{candidate.text}</small></span>
               <span className="feature-progress" />
             </button>
@@ -264,9 +263,9 @@ function Comparison() {
 
 function Security() {
   const cards = [
-    ['Только одобренные модели', 'Работаем только с российскими и локализованными моделями, без экспортных ограничений', 'security-approved-models.webp'],
-    ['Ваш контур, ваша юрисдикция', 'Развертывание в частном облаке с полным соответствием 152-ФЗ и внутренними ИБ-требованиями', 'security-private-cloud.webp'],
-    ['Собственный AI-стек', 'Вы сами определяете модели, хранилища, доступы и цепочки валидации', 'security-ai-stack.webp'],
+    ['Только одобренные модели', 'Работаем только с\u00a0российскими и\u00a0локализованными моделями, без\u00a0экспортных ограничений', 'security-approved-models.webp'],
+    ['Ваш контур, ваша юрисдикция', 'Развертывание в\u00a0частном облаке с\u00a0полным соответствием 152-ФЗ и\u00a0внутренними ИБ-требованиями', 'security-private-cloud.webp'],
+    ['Собственный AI-стек', 'Вы\u00a0сами определяете модели, хранилища, доступы и\u00a0цепочки валидации', 'security-ai-stack.webp'],
   ]
 
   return (
@@ -405,7 +404,7 @@ function Faq() {
 function FinalCta() {
   return (
     <section className="final-cta reveal" id="cta">
-      <h2>Профессиональные материалы в фирменном стиле<br />за минуты, а не дни</h2>
+      <h2>{'Профессиональные материалы в\u00a0фирменном стиле'}<br />{'за\u00a0минуты, а\u00a0не\u00a0дни'}</h2>
       <a className="button button--light" href="#contact">Начать сейчас</a>
     </section>
   )
