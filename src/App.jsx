@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { contentTabs, faqs, roadmap, teamTabs, testimonials } from './data.js'
+import { useEffect, useRef, useState } from 'react'
+import { contentTabs, faqs, roadmap, teamScenarios } from './data.js'
 
 const asset = (name) => `${import.meta.env.BASE_URL}assets/images/${name}`
 
@@ -23,52 +23,73 @@ function CheckIcon() {
   )
 }
 
-function SectionHeading({ eyebrow, title, text, align = 'left' }) {
+function SectionHeading({ title, text, align = 'left', split = false }) {
   return (
-    <div className={`section-heading section-heading--${align}`}>
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+    <div className={`section-heading section-heading--${align}${split ? ' section-heading--split' : ''}`}>
       <h2>{title}</h2>
-      {text && <p className="section-lead">{text}</p>}
+      {text && <p>{text}</p>}
     </div>
   )
 }
 
 function Header() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    document.body.classList.toggle('menu-open', open)
+    return () => document.body.classList.remove('menu-open')
+  }, [open])
+
   const close = () => setOpen(false)
 
   return (
-    <header className="site-header">
-      <a className="brand-link" href="#hero" aria-label="На главную" onClick={close}><Logo /></a>
-      <nav className={`main-nav ${open ? 'is-open' : ''}`} aria-label="Основная навигация">
+    <header className={`site-header${scrolled ? ' is-scrolled' : ''}${open ? ' is-open' : ''}`}>
+      <div className="header-bar">
+        <a className="brand-link" href="#hero" aria-label="На главную" onClick={close}><Logo /></a>
+        <nav className="main-nav" aria-label="Основная навигация">
+          <a href="#process" onClick={close}>Продукт</a>
+          <a href="#use-cases" onClick={close}>Возможности</a>
+          <a href="#features" onClick={close}>Безопасность</a>
+          <a href="#faq" onClick={close}>FAQ</a>
+        </nav>
+        <a className="button button--dark header-cta" href="#contact" onClick={close}>Начать сейчас</a>
+        <button
+          className="menu-button"
+          type="button"
+          aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <span /><span />
+        </button>
+      </div>
+      <div className="mobile-menu" aria-hidden={!open}>
         <a href="#process" onClick={close}>Продукт</a>
         <a href="#use-cases" onClick={close}>Возможности</a>
         <a href="#features" onClick={close}>Безопасность</a>
         <a href="#faq" onClick={close}>FAQ</a>
-      </nav>
-      <a className="button button--dark header-cta" href="#contact">Начать сейчас</a>
-      <button
-        className={`menu-button ${open ? 'is-open' : ''}`}
-        type="button"
-        aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span /><span />
-      </button>
+        <a className="button button--dark" href="#contact" onClick={close}>Начать сейчас</a>
+      </div>
     </header>
   )
 }
 
 function Hero() {
   return (
-    <section className="hero reveal" id="hero">
+    <section className="hero" id="hero">
       <div className="hero-surface">
         <div className="hero-copy">
-          <p className="eyebrow hero-eyebrow">Дизайн-система, доступная всей команде</p>
-          <h1>Платформа, где всё создаётся в рамках вашего бренда и дизайн-системы</h1>
+          <h1>Платформа, где все создается в рамках вашего бренда и дизайн-системы</h1>
           <p>Подключите дизайн-систему к Снэпбилду, чтобы каждый участник команды мог создавать профессиональные материалы в фирменном стиле за минуты, а не дни.</p>
-          <a className="button button--light" href="#contact">Начать сейчас <ArrowIcon /></a>
+          <a className="button button--light" href="#contact">Начать сейчас</a>
         </div>
         <div className="hero-preview">
           <img src={asset('hero-snapbuild-2026-08-07-v2.webp')} alt="Интерфейс платформы Снэпбилд" />
@@ -78,144 +99,142 @@ function Hero() {
   )
 }
 
+const clientLogos = [
+  ['5cd01de0b6a5e001.svg', 'Ozon'],
+  ['ee341193d7cf46d6.svg', 'T2'],
+  ['logo-avito.svg', 'Avito'],
+  ['logo-cian.svg', 'Циан'],
+  ['logo-lenta.svg', 'Лента'],
+]
+
 function LogoCloud() {
-  const logos = [
-    ['5cd01de0b6a5e001.svg', 'Ozon'],
-    ['ee341193d7cf46d6.svg', 'T2'],
-    ['logo-avito.svg', 'Avito'],
-    ['logo-cian.svg', 'Циан'],
-    ['logo-lenta.svg', 'Лента'],
-  ]
   return (
-    <section className="logo-cloud reveal" aria-label="Клиенты платформы">
-      <p>С платформой работают команды, для которых бренд — закон</p>
-      <div className="logo-row">
-        {logos.map(([src, name]) => <img key={name} src={asset(src)} alt={name} />)}
+    <section className="logo-cloud reveal" id="logos" aria-label="Клиенты платформы">
+      <div className="logo-track">
+        {[0, 1].map((copy) => (
+          <div className="logo-group" aria-hidden={copy === 1} key={copy}>
+            {clientLogos.map(([src, name], index) => <img key={`${copy}-${name}`} style={{ '--logo-index': index }} src={asset(src)} alt={copy ? '' : name} />)}
+          </div>
+        ))}
       </div>
+      <p>С платформой работают команды, для которых бренд — закон</p>
     </section>
   )
 }
 
 function Process() {
   const items = [
-    {
-      title: 'Дизайн-система — ядро платформы',
-      text: 'Ваши компоненты, цвета и шрифты — единственный источник стиля',
-      image: '84a4450b3827bc21.webp',
-    },
-    {
-      title: 'Гибкая конфигурация',
-      text: 'Правила бренда задаются один раз — работают в каждой генерации',
-      image: 'process-flexible-configuration.webp',
-    },
-    {
-      title: 'Соответствие по умолчанию',
-      text: 'AI не может нарушить бренд: каждый формат следует вашим правилам',
-      image: 'afe03eb4a67d5dfb.webp',
-    },
+    ['Дизайн-система — ядро платформы', 'Ваши компоненты, цвета и шрифты — единственный источник стиля', '84a4450b3827bc21.webp'],
+    ['Гибкая конфигурация', 'Правила бренда задаются один раз — работают в каждой генерации', 'process-flexible-configuration.webp'],
+    ['Соответствие по умолчанию', 'AI не может нарушить бренд: сайты, изображения, видео, баннеры и презентации — строго по вашим правилам', 'afe03eb4a67d5dfb.webp'],
   ]
+
   return (
     <section className="section process reveal" id="process">
-      <div className="container">
-        <SectionHeading title="Одна платформа — весь маркетинг" text="Сайты, изображения, видео, баннеры и презентации — из одной идеи, в вашем стиле" />
-        <div className="process-grid">
-          {items.map((item, index) => (
-            <article className="process-card" key={item.title}>
-              <div className="process-image"><img src={asset(item.image)} alt="" /></div>
-              <span className="card-index">0{index + 1}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
+      <SectionHeading split title="Одна платформа — весь маркетинг" text="Сайты, изображения, видео, баннеры и презентации — из одной идеи, в вашем стиле" />
+      <div className="process-grid">
+        {items.map(([title, text, image]) => (
+          <article className="process-card" key={title}>
+            <img src={asset(image)} alt="" />
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
       </div>
     </section>
   )
 }
 
 function TeamWorkflows() {
-  const [active, setActive] = useState(teamTabs[0].id)
-  const item = teamTabs.find((tab) => tab.id === active)
+  const [active, setActive] = useState(teamScenarios[0].id)
+  const item = teamScenarios.find((scenario) => scenario.id === active)
+
   return (
-    <section className="section team-workflows reveal" id="teams">
-      <div className="container">
-        <SectionHeading eyebrow="Новый раздел" title="Один продукт — разные команды" text="Снэпбилд снимает рутину между идеей и готовым материалом, сохраняя понятные роли и контроль." />
-        <div className="team-tabs" role="tablist" aria-label="Команды">
-          {teamTabs.map((tab) => (
-            <button key={tab.id} role="tab" aria-selected={active === tab.id} className={active === tab.id ? 'is-active' : ''} onClick={() => setActive(tab.id)}>{tab.label}</button>
-          ))}
+    <section className="section teams reveal" id="teams">
+      <SectionHeading split title="Один продукт — для всей команды" text="Каждый работает в знакомом сценарии, а дизайн-система остается общей для всех материалов" />
+      <div className="pill-tabs" role="tablist" aria-label="Команды">
+        {teamScenarios.map((scenario) => (
+          <button key={scenario.id} role="tab" aria-selected={active === scenario.id} className={active === scenario.id ? 'is-active' : ''} onClick={() => setActive(scenario.id)}>{scenario.label}</button>
+        ))}
+      </div>
+      <div className="team-panel" role="tabpanel" key={item.id}>
+        <div className="team-copy">
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+          <ul>{item.points.map((point) => <li key={point}><CheckIcon />{point}</li>)}</ul>
         </div>
-        <div className="team-panel" role="tabpanel" key={item.id}>
-          <div className="team-panel-copy">
-            <p className="eyebrow">{item.eyebrow}</p>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-            <div className="chip-row">{item.chips.map((chip) => <span key={chip}>{chip}</span>)}</div>
-          </div>
-          <div className={`team-visual team-visual--${item.id}`}>
-            <div className="mini-window">
-              <div className="mini-window-bar"><i /><i /><i /></div>
-              <div className="mini-canvas">
-                <div className="mini-sidebar"><span /><span /><span /><span /></div>
-                <div className="mini-content"><span /><strong>{item.label}</strong><span /><span /></div>
-              </div>
-            </div>
-            <div className="team-stat"><strong>{item.stat}</strong><span>{item.statLabel}</span></div>
-          </div>
-        </div>
+        <div className="team-media"><img src={asset(item.image)} alt="" /></div>
       </div>
     </section>
   )
 }
 
 function UseCases() {
-  const [active, setActive] = useState(contentTabs[0].id)
-  const item = contentTabs.find((tab) => tab.id === active)
+  const [tabIndex, setTabIndex] = useState(0)
+  const [featureIndex, setFeatureIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const item = contentTabs[tabIndex]
+  const feature = item.features[featureIndex]
+
+  useEffect(() => {
+    if (paused) return undefined
+    const timer = window.setTimeout(() => {
+      if (featureIndex < item.features.length - 1) {
+        setFeatureIndex((value) => value + 1)
+      } else {
+        setFeatureIndex(0)
+        setTabIndex((value) => (value + 1) % contentTabs.length)
+      }
+    }, 4800)
+    return () => window.clearTimeout(timer)
+  }, [featureIndex, item.features.length, paused, tabIndex])
+
+  const selectTab = (index) => {
+    setTabIndex(index)
+    setFeatureIndex(0)
+  }
+
   return (
-    <section className="section use-cases reveal" id="use-cases">
-      <div className="container">
-        <SectionHeading title="Любой контент в фирменном стиле за считанные минуты" />
-        <div className="content-tabs" role="tablist" aria-label="Тип контента">
-          {contentTabs.map((tab) => (
-            <button key={tab.id} role="tab" aria-selected={active === tab.id} className={active === tab.id ? 'is-active' : ''} onClick={() => setActive(tab.id)}>{tab.label}</button>
+    <section className="section use-cases reveal" id="use-cases" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="use-cases-header">
+        <h2>Любой контент в фирменном стиле за считанные минуты</h2>
+        <div className="pill-tabs content-tabs" role="tablist" aria-label="Тип контента">
+          {contentTabs.map((tab, index) => (
+            <button key={tab.id} role="tab" aria-selected={tabIndex === index} className={tabIndex === index ? 'is-active' : ''} onClick={() => selectTab(index)}>{tab.label}</button>
           ))}
         </div>
-        <div className="content-panel" key={item.id} role="tabpanel">
-          <div className="feature-list">
-            {item.features.map(([title, text], index) => (
-              <article className={index === 0 ? 'is-active' : ''} key={title}>
-                <span>0{index + 1}</span>
-                <div><h3>{title}</h3><p>{text}</p></div>
-              </article>
-            ))}
-          </div>
-          <div className="content-visual"><img src={asset(item.image)} alt={`Пример: ${item.label.toLowerCase()} в Снэпбилде`} /></div>
+      </div>
+      <div className="content-panel" role="tabpanel">
+        <div className="feature-list">
+          {item.features.map((candidate, index) => (
+            <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => setFeatureIndex(index)}>
+              <span className="feature-number">0{index + 1}</span>
+              <span className="feature-copy"><strong>{candidate.title}</strong><small>{candidate.text}</small></span>
+              <span className="feature-progress" />
+            </button>
+          ))}
+        </div>
+        <div className="content-visual">
+          <img key={`${item.id}-${featureIndex}`} src={asset(feature.image)} alt={`Пример раздела «${item.label}»: ${feature.title}`} />
         </div>
       </div>
     </section>
   )
 }
 
-function Results() {
-  const metrics = [
-    ['5 минут', 'до первой готовой страницы'],
-    ['100%', 'точность дизайн-системы'],
-    ['−72%', 'ручных дизайн-итераций'],
-    ['5 форматов', 'из одного исходного брифа'],
-  ]
+function CampaignSystem() {
   return (
-    <section className="section results reveal" id="results">
-      <div className="container">
-        <div className="results-surface">
-          <SectionHeading eyebrow="Новый раздел" title="Бренд быстрее бизнеса больше не тормозит" text="Платформа превращает правила дизайн-системы в измеримую скорость для маркетинга." />
-          <div className="metrics-grid">
-            {metrics.map(([value, label], index) => (
-              <article key={value}><span>0{index + 1}</span><strong>{value}</strong><p>{label}</p></article>
-            ))}
-          </div>
-          <div className="results-ticker" aria-label="Этапы выпуска кампании">
-            {['Бриф', 'Структура', 'Дизайн-система', 'Контент', 'Публикация'].map((label, index) => <div key={label}><span>{index + 1}</span>{label}</div>)}
-          </div>
+    <section className="section campaign reveal" id="campaign">
+      <div className="campaign-surface">
+        <div className="campaign-copy">
+          <h2>Одна идея — материалы для каждого канала</h2>
+          <p>Смысл, визуальный язык и компоненты остаются общими, пока формат меняется под задачу.</p>
+          <div className="format-list"><span>Сайт</span><span>Изображение</span><span>Видео</span><span>Баннер</span><span>Презентация</span></div>
+        </div>
+        <div className="campaign-stack" aria-hidden="true">
+          <img src={asset('use-cases-tab4-item2.webp')} alt="" />
+          <img src={asset('use-cases-tab5-item3.webp')} alt="" />
+          <img src={asset('use-cases-tab2-item4.webp')} alt="" />
         </div>
       </div>
     </section>
@@ -225,20 +244,19 @@ function Results() {
 function Comparison() {
   const rows = [
     ['Time-to-market', '5 минут', '30–60 мин', '2–3 дня', '1–2 дня', '3–5 недель'],
-    ['Дизайн-система', '100% точность', 'Частично, из Figma', 'Шаблоны', 'Вручную в коде', 'Вручную, через ревью'],
+    ['Дизайн-система', <>100%<br />точность</>, 'Частично, из Figma', 'Шаблоны', 'Вручную в коде', 'Вручную, через ревью'],
     ['Визуальный редактор', '+ AI', '—', <CheckIcon key="check" />, '—', '—'],
     ['Требуемые навыки', 'Нет', 'Промпты + код', 'Дизайн', 'Разработка', 'Полная команда'],
   ]
+
   return (
     <section className="section compare reveal" id="compare">
-      <div className="container">
-        <SectionHeading title="Почему команды выбирают Снэпбилд" text="Вы получаете не редактор, а результат: готовые маркетинговые материалы без проблем с настройками" />
-        <div className="table-scroll">
-          <table>
-            <thead><tr>{['Особенности', 'снэпбилд', 'Claude + Figma MCP', 'No-code платформы', 'Cursor', 'Традиционный'].map((item) => <th key={item}>{item}</th>)}</tr></thead>
-            <tbody>{rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={index}>{cell}</td>)}</tr>)}</tbody>
-          </table>
-        </div>
+      <SectionHeading split title="Почему команды выбирают Снэпбилд" text="Вы получаете не редактор, а результат: готовые маркетинговые материалы без проблем с настройками" />
+      <div className="table-scroll">
+        <table>
+          <thead><tr>{['Особенности', 'снэпбилд', 'Claude + Figma MCP', 'No-code платформы', 'Cursor', 'Традиционный'].map((label) => <th key={label}>{label}</th>)}</tr></thead>
+          <tbody>{rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={index}>{cell}</td>)}</tr>)}</tbody>
+        </table>
       </div>
     </section>
   )
@@ -246,55 +264,76 @@ function Comparison() {
 
 function Security() {
   const cards = [
-    ['Только одобренные модели', 'Работаем с российскими и локализованными моделями без экспортных ограничений', 'security-approved-models.webp'],
-    ['Ваш контур, ваша юрисдикция', 'Развёртывание в частном облаке с полным соответствием 152-ФЗ и внутренним ИБ-требованиям', 'security-private-cloud.webp'],
-    ['Собственный AI-стек', 'Вы определяете модели, хранилища, доступы и цепочки валидации', 'security-ai-stack.webp'],
+    ['Только одобренные модели', 'Работаем только с российскими и локализованными моделями, без экспортных ограничений', 'security-approved-models.webp'],
+    ['Ваш контур, ваша юрисдикция', 'Развертывание в частном облаке с полным соответствием 152-ФЗ и внутренними ИБ-требованиями', 'security-private-cloud.webp'],
+    ['Собственный AI-стек', 'Вы сами определяете модели, хранилища, доступы и цепочки валидации', 'security-ai-stack.webp'],
   ]
+
   return (
     <section className="section security reveal" id="features">
-      <div className="container">
-        <SectionHeading title="Безопасность без компромиссов" />
-        <div className="security-grid">
-          {cards.map(([title, text, image]) => <article key={title}><img src={asset(image)} alt="" /><h3>{title}</h3><p>{text}</p></article>)}
-        </div>
+      <SectionHeading title="Безопасность без компромиссов" />
+      <div className="security-grid">
+        {cards.map(([title, text, image]) => <article key={title}><img src={asset(image)} alt="" /><h3>{title}</h3><p>{text}</p></article>)}
       </div>
     </section>
   )
 }
 
-function Implementation() {
-  const steps = [
-    ['01', 'Анализируем', 'Собираем цвета, шрифты, сетки и паттерны из ваших интерфейсов.'],
-    ['02', 'Настраиваем', 'Фиксируем компоненты, ограничения и права для разных ролей.'],
-    ['03', 'Проверяем', 'Создаём эталонные материалы и валидируем качество с командой.'],
-    ['04', 'Масштабируем', 'Подключаем пользователей, процессы и корпоративный контур.'],
+function Onboarding() {
+  const cards = [
+    ['Собираем язык бренда', 'Цвета, типографика, сетки и композиционные правила из ваших материалов.', 'use-cases-tab1-item2.webp'],
+    ['Фиксируем компоненты', 'Настраиваем допустимые элементы, состояния и ограничения дизайн-системы.', 'use-cases-tab1-item3.webp'],
+    ['Передаем команде', 'Пользователи создают материалы в готовой системе без ручной пересборки.', 'use-cases-tab5-item2.webp'],
   ]
+
   return (
-    <section className="section implementation reveal" id="implementation">
-      <div className="container">
-        <SectionHeading eyebrow="Новый раздел" title="От дизайн-системы до первого запуска" text="Внедрение остаётся прозрачным: каждый этап заканчивается понятным результатом." />
-        <div className="implementation-grid">
-          {steps.map(([number, title, text], index) => (
-            <article key={number}>
-              <div className="step-orbit"><span>{number}</span>{index < 3 && <i />}</div>
-              <h3>{title}</h3><p>{text}</p>
-            </article>
-          ))}
+    <section className="section onboarding reveal" id="onboarding">
+      <SectionHeading split title="Дизайн-система становится рабочим инструментом" text="Подключение строится вокруг ваших существующих правил и процессов" />
+      <div className="onboarding-grid">
+        {cards.map(([title, text, image]) => <article key={title}><img src={asset(image)} alt="" /><h3>{title}</h3><p>{text}</p></article>)}
+      </div>
+    </section>
+  )
+}
+
+function Integrations() {
+  const items = ['Figma', 'GitHub', 'GitLab', 'REST API', 'Private Cloud', 'CI/CD']
+  return (
+    <section className="section integrations reveal" id="integrations">
+      <div className="integration-surface">
+        <SectionHeading align="center" title="Встраивается в существующую инфраструктуру" text="Дизайн, код и корпоративный контур остаются частью привычного процесса" />
+        <div className="integration-map">
+          <div className="integration-core"><Logo /><span>Дизайн-система и AI</span></div>
+          <div className="integration-orbit">{items.map((item) => <span key={item}>{item}</span>)}</div>
         </div>
-        <div className="integration-strip"><span>Figma</span><span>GitHub</span><span>GitLab</span><span>REST API</span><span>Private Cloud</span></div>
       </div>
     </section>
   )
 }
 
 function Roadmap() {
+  const trackRef = useRef(null)
+  const drag = useRef({ active: false, x: 0, left: 0 })
+
+  const pointerDown = (event) => {
+    const track = trackRef.current
+    drag.current = { active: true, x: event.clientX, left: track.scrollLeft }
+    track.setPointerCapture(event.pointerId)
+    track.classList.add('is-dragging')
+  }
+  const pointerMove = (event) => {
+    if (!drag.current.active) return
+    trackRef.current.scrollLeft = drag.current.left - (event.clientX - drag.current.x)
+  }
+  const pointerUp = () => {
+    drag.current.active = false
+    trackRef.current?.classList.remove('is-dragging')
+  }
+
   return (
     <section className="section roadmap reveal" id="roadmap">
-      <div className="container">
-        <SectionHeading title="Каждый день — новый релиз" text="Приоритизируем бэклог для ваших целей" />
-      </div>
-      <div className="roadmap-track-wrap">
-        <div className="roadmap-line" />
+      <SectionHeading title="Каждый день — новый релиз" text="Приоритизируем бэклог для ваших целей" />
+      <div className="roadmap-scroller" ref={trackRef} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}>
         <div className="roadmap-track">
           {roadmap.map(([title, text, date]) => <article key={title}><i /><h3>{title}</h3><p>{text}</p><time>{date}</time></article>)}
         </div>
@@ -303,34 +342,9 @@ function Roadmap() {
   )
 }
 
-function Stories() {
-  const [index, setIndex] = useState(0)
-  const story = testimonials[index]
-  const select = (next) => setIndex((next + testimonials.length) % testimonials.length)
-  return (
-    <section className="section stories reveal" id="stories">
-      <div className="container">
-        <SectionHeading eyebrow="Новый раздел" title="Команды замечают результат с первого запуска" />
-        <div className="story-card" key={story.name}>
-          <div className="story-quote-mark">“</div>
-          <blockquote>{story.quote}</blockquote>
-          <div className="story-person"><div className="avatar">{story.name.split(' ').map((part) => part[0]).join('')}</div><div><strong>{story.name}</strong><span>{story.role}</span></div></div>
-          <div className="story-result">{story.result}</div>
-        </div>
-        <div className="story-controls">
-          <div className="story-dots">{testimonials.map((item, dot) => <button key={item.name} className={dot === index ? 'is-active' : ''} aria-label={`Отзыв ${dot + 1}`} onClick={() => setIndex(dot)} />)}</div>
-          <div><button aria-label="Предыдущий отзыв" onClick={() => select(index - 1)}>←</button><button aria-label="Следующий отзыв" onClick={() => select(index + 1)}>→</button></div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function PlansAndContact() {
-  const [annual, setAnnual] = useState(false)
+function Contact() {
   const [status, setStatus] = useState('idle')
   const [errors, setErrors] = useState({})
-  const prices = annual ? ['по запросу', 'от 240 000 ₽/мес', 'индивидуально'] : ['по запросу', 'от 300 000 ₽/мес', 'индивидуально']
 
   const submit = (event) => {
     event.preventDefault()
@@ -339,72 +353,50 @@ function PlansAndContact() {
     if (!String(form.get('name')).trim()) nextErrors.name = 'Укажите имя'
     const email = String(form.get('email')).trim()
     if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = 'Введите корректный email'
-    if (!form.get('company')) nextErrors.company = 'Укажите компанию'
+    if (!String(form.get('company')).trim()) nextErrors.company = 'Укажите компанию'
     setErrors(nextErrors)
-    if (Object.keys(nextErrors).length === 0) {
-      setStatus('success')
+    if (!Object.keys(nextErrors).length) {
       event.currentTarget.reset()
+      setStatus('success')
     }
   }
 
-  const plans = [
-    ['Пилот', 'Проверить сценарий и качество', ['Один формат материалов', 'Базовая дизайн-система', 'Совместная настройка']],
-    ['Команда', 'Запустить рабочий процесс', ['Все форматы', 'Роли и согласования', 'Интеграции и аналитика']],
-    ['Контур', 'Развернуть внутри компании', ['Частное облако', 'Собственный AI-стек', 'SLA и обучение']],
-  ]
-
   return (
-    <section className="section plans-contact reveal" id="contact">
-      <div className="container">
-        <SectionHeading eyebrow="Новый раздел" title="Начните с подходящего масштаба" text="Выберите формат подключения — мы поможем оценить сценарий и собрать пилот." align="center" />
-        <div className="billing-toggle" role="group" aria-label="Период оплаты">
-          <button className={!annual ? 'is-active' : ''} onClick={() => setAnnual(false)}>Помесячно</button>
-          <button className={annual ? 'is-active' : ''} onClick={() => setAnnual(true)}>За год <span>−20%</span></button>
+    <section className="section contact reveal" id="contact">
+      <div className="contact-surface">
+        <div className="contact-copy">
+          <h2>Покажем Снэпбилд на ваших материалах</h2>
+          <p>Расскажите, что создает ваша команда. Подготовим демонстрацию на сценарии, близком к вашим процессам.</p>
+          <ul><li><CheckIcon />Ваш визуальный язык</li><li><CheckIcon />Подходящие форматы</li><li><CheckIcon />Вариант развертывания</li></ul>
         </div>
-        <div className="plans-grid">
-          {plans.map(([title, text, features], index) => (
-            <article className={index === 1 ? 'is-featured' : ''} key={title}>
-              {index === 1 && <span className="popular">Популярный</span>}
-              <h3>{title}</h3><p>{text}</p><strong className="price">{prices[index]}</strong>
-              <ul>{features.map((feature) => <li key={feature}><CheckIcon />{feature}</li>)}</ul>
-              <a className={`button ${index === 1 ? 'button--dark' : 'button--outline'}`} href="#demo-form">Обсудить</a>
-            </article>
-          ))}
-        </div>
-        <div className="demo-panel" id="demo-form">
-          <div className="demo-copy"><p className="eyebrow">Персональная демонстрация</p><h3>Покажем Снэпбилд на ваших материалах</h3><p>Расскажите о задаче — подготовим сценарий встречи и свяжемся в рабочее время.</p><div className="demo-note"><span>✓</span> Никаких платных сервисов или закрытых ключей для демо</div></div>
-          {status === 'success' ? (
-            <div className="form-success" role="status"><div>✓</div><h3>Заявка готова</h3><p>Демо-форма работает локально: данные прошли проверку, имитация отправки завершена успешно.</p><button className="button button--outline" onClick={() => setStatus('idle')}>Отправить ещё одну</button></div>
-          ) : (
-            <form onSubmit={submit} noValidate>
-              <label>Имя<input name="name" type="text" placeholder="Как к вам обращаться" aria-invalid={Boolean(errors.name)} />{errors.name && <span>{errors.name}</span>}</label>
-              <label>Рабочий email<input name="email" type="email" placeholder="name@company.ru" aria-invalid={Boolean(errors.email)} />{errors.email && <span>{errors.email}</span>}</label>
-              <label>Компания<input name="company" type="text" placeholder="Название компании" aria-invalid={Boolean(errors.company)} />{errors.company && <span>{errors.company}</span>}</label>
-              <label>Задача<textarea name="message" rows="3" placeholder="Что хотите создавать быстрее?" /></label>
-              <button className="button button--dark" type="submit">Запросить демо <ArrowIcon /></button>
-              <small>Нажимая кнопку, вы соглашаетесь с обработкой данных.</small>
-            </form>
-          )}
-        </div>
+        {status === 'success' ? (
+          <div className="form-success" role="status"><span>✓</span><h3>Форма проверена</h3><p>Данные прошли локальную валидацию. Для тестового задания отправка не уходит во внешний сервис.</p><button className="button button--outline" onClick={() => setStatus('idle')}>Отправить еще раз</button></div>
+        ) : (
+          <form onSubmit={submit} noValidate>
+            <label>Имя<input name="name" type="text" placeholder="Как к вам обращаться" aria-invalid={Boolean(errors.name)} />{errors.name && <small>{errors.name}</small>}</label>
+            <label>Рабочий email<input name="email" type="email" placeholder="name@company.ru" aria-invalid={Boolean(errors.email)} />{errors.email && <small>{errors.email}</small>}</label>
+            <label>Компания<input name="company" type="text" placeholder="Название компании" aria-invalid={Boolean(errors.company)} />{errors.company && <small>{errors.company}</small>}</label>
+            <label>Задача<textarea name="message" rows="3" placeholder="Какие материалы хотите создавать?" /></label>
+            <button className="button button--dark" type="submit">Запросить демо <ArrowIcon /></button>
+          </form>
+        )}
       </div>
     </section>
   )
 }
 
 function Faq() {
-  const [open, setOpen] = useState(0)
+  const [open, setOpen] = useState(-1)
   return (
     <section className="section faq reveal" id="faq">
-      <div className="container">
-        <SectionHeading title="Часто задаваемые вопросы" text="Ответы, которые помогут принять решение уверенно — без рисков для бренда и безопасности" />
-        <div className="faq-grid">
-          {faqs.map(([question, answer], index) => (
-            <article className={open === index ? 'is-open' : ''} key={question}>
-              <button aria-expanded={open === index} onClick={() => setOpen(open === index ? -1 : index)}><span>{question}</span><i>+</i></button>
-              <div className="faq-answer"><p>{answer}</p></div>
-            </article>
-          ))}
-        </div>
+      <SectionHeading title="Часто задаваемые вопросы" text="Ответы, которые помогут вам принять решение уверенно — без рисков для бренда и безопасности" />
+      <div className="faq-grid">
+        {faqs.map(([question, answer], index) => (
+          <article className={open === index ? 'is-open' : ''} key={question}>
+            <button aria-expanded={open === index} onClick={() => setOpen(open === index ? -1 : index)}><span>{question}</span><i>+</i></button>
+            <div className="faq-answer"><p>{answer}</p></div>
+          </article>
+        ))}
       </div>
     </section>
   )
@@ -412,33 +404,38 @@ function Faq() {
 
 function FinalCta() {
   return (
-    <section className="final-cta reveal">
-      <div><h2>Профессиональные материалы в фирменном стиле<br />за минуты, а не дни</h2><a className="button button--light" href="#contact">Начать сейчас <ArrowIcon /></a></div>
+    <section className="final-cta reveal" id="cta">
+      <h2>Профессиональные материалы в фирменном стиле<br />за минуты, а не дни</h2>
+      <a className="button button--light" href="#contact">Начать сейчас</a>
     </section>
   )
 }
 
 function Footer() {
   return (
-    <footer className="footer">
-      <div className="container footer-grid">
-        <div className="footer-brand"><Logo /><p>Платформа, где всё создаётся в рамках вашего бренда и дизайн-системы</p></div>
-        <div><strong>Навигация</strong><a href="#process">Продукт</a><a href="#use-cases">Возможности</a><a href="#compare">Преимущества</a><a href="#features">Безопасность</a></div>
-        <div><strong>Материалы</strong><a href="#roadmap">Роадмап</a><a href="#faq">Частые вопросы</a><a href="#contact">Форматы подключения</a></div>
-        <div><strong>Контакты</strong><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a></div>
+    <footer className="footer" id="footer">
+      <div className="footer-top">
+        <div className="footer-brand"><Logo /><p>Платформа, где все создается в рамках вашего бренда и дизайн-системы</p></div>
+        <div><strong>Навигация</strong><a href="#process">Продукт</a><a href="#use-cases">Возможности</a><a href="#compare">Преимущества</a><a href="#features">Безопасность</a><a href="#roadmap">Роадмап</a><a href="#faq">Частые вопросы</a></div>
+        <div><strong>Документация</strong><a href="#faq">Политика конфиденциальности</a><a href="#faq">FAQ</a></div>
+        <div><strong>Контакты</strong><a href="#contact">Запросить демо</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a></div>
       </div>
-      <div className="container footer-bottom"><span>© Сгенерировано в Снэпбилде. Все права защищены.</span><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
+      <div className="footer-bottom"><span>© Сгенерировано в Снэпбилде. Все права защищены.</span><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
     </footer>
   )
 }
 
 export default function App() {
   useEffect(() => {
+    document.documentElement.classList.add('motion-ready')
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add('is-visible')
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
       })
-    }, { threshold: 0.08 })
+    }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' })
     document.querySelectorAll('.reveal').forEach((element) => observer.observe(element))
     return () => observer.disconnect()
   }, [])
@@ -452,13 +449,13 @@ export default function App() {
         <Process />
         <TeamWorkflows />
         <UseCases />
-        <Results />
+        <CampaignSystem />
         <Comparison />
         <Security />
-        <Implementation />
+        <Onboarding />
+        <Integrations />
         <Roadmap />
-        <Stories />
-        <PlansAndContact />
+        <Contact />
         <Faq />
         <FinalCta />
       </main>
