@@ -89,7 +89,7 @@ function Hero() {
         <div className="hero-copy">
           <h1>Платформа, где все создается в рамках вашего бренда и дизайн-системы</h1>
           <p>Подключите дизайн-систему к Снэпбилду, чтобы каждый участник команды мог создавать профессиональные материалы в фирменном стиле за минуты, а не дни.</p>
-          <a className="button button--light" href="#contact">Начать сейчас</a>
+          <a className="button button--light button--shine" href="#contact"><span>Начать сейчас</span></a>
         </div>
         <div className="hero-preview">
           <img src={asset('hero-snapbuild-2026-08-07-v2.webp')} alt="Интерфейс платформы Снэпбилд" />
@@ -172,6 +172,7 @@ function TeamWorkflows() {
 function UseCases() {
   const [tabIndex, setTabIndex] = useState(0)
   const [featureIndex, setFeatureIndex] = useState(0)
+  const [swipeDirection, setSwipeDirection] = useState('next')
   const [paused, setPaused] = useState(false)
   const item = contentTabs[tabIndex]
   const feature = item.features[featureIndex]
@@ -179,6 +180,7 @@ function UseCases() {
   useEffect(() => {
     if (paused) return undefined
     const timer = window.setTimeout(() => {
+      setSwipeDirection('next')
       if (featureIndex < item.features.length - 1) {
         setFeatureIndex((value) => value + 1)
       } else {
@@ -190,8 +192,16 @@ function UseCases() {
   }, [featureIndex, item.features.length, paused, tabIndex])
 
   const selectTab = (index) => {
+    if (index === tabIndex) return
+    setSwipeDirection(index > tabIndex ? 'next' : 'prev')
     setTabIndex(index)
     setFeatureIndex(0)
+  }
+
+  const selectFeature = (index) => {
+    if (index === featureIndex) return
+    setSwipeDirection(index > featureIndex ? 'next' : 'prev')
+    setFeatureIndex(index)
   }
 
   return (
@@ -207,13 +217,14 @@ function UseCases() {
       <div className="content-panel" role="tabpanel">
         <div className="feature-list">
           {item.features.map((candidate, index) => (
-            <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => setFeatureIndex(index)}>
+            <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => selectFeature(index)}>
+              <span className="feature-number">{String(index + 1).padStart(2, '0')}</span>
               <span className="feature-copy"><strong>{candidate.title}</strong><small>{candidate.text}</small></span>
               <span className="feature-progress" />
             </button>
           ))}
         </div>
-        <div className="content-visual">
+        <div className="content-visual" data-swipe={swipeDirection}>
           <img key={`${item.id}-${featureIndex}`} src={asset(feature.image)} alt={`Пример раздела «${item.label}»: ${feature.title}`} />
         </div>
       </div>
@@ -404,8 +415,9 @@ function Faq() {
 function FinalCta() {
   return (
     <section className="final-cta reveal" id="cta">
+      <span className="final-cta-shine" aria-hidden="true" />
       <h2>{'Профессиональные материалы в\u00a0фирменном стиле'}<br />{'за\u00a0минуты, а\u00a0не\u00a0дни'}</h2>
-      <a className="button button--light" href="#contact">Начать сейчас</a>
+      <a className="button button--light button--shine" href="#contact"><span>Начать сейчас</span></a>
     </section>
   )
 }
