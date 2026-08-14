@@ -292,7 +292,7 @@ h3 {
 .hero-copy h1 {
   max-width: 940px;
   margin: 0 auto 24px;
-  font-size: clamp(58px, 6vw, 82px);
+  font-size: clamp(58px, 5.2vw, 74px);
   font-weight: 600;
   line-height: .96;
 }
@@ -1745,6 +1745,12 @@ h3 {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .team-tabs::-webkit-scrollbar,
+  .content-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .team-panel-copy {
