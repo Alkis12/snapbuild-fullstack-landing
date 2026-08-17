@@ -87,7 +87,7 @@ function Hero() {
     <section className="hero" id="hero">
       <div className="hero-surface">
         <div className="hero-copy">
-          <h1>Платформа, где все создается в рамках вашего бренда и дизайн-системы</h1>
+          <h1>{'Платформа, где все создается в\u00a0рамках вашего бренда и\u00a0дизайн-системы'}</h1>
           <p>Подключите дизайн-систему к Снэпбилду, чтобы каждый участник команды мог создавать профессиональные материалы в фирменном стиле за минуты, а не дни.</p>
           <a className="button button--light button--shine" href="#contact"><span>Начать сейчас</span></a>
         </div>
@@ -173,12 +173,10 @@ function UseCases() {
   const [tabIndex, setTabIndex] = useState(0)
   const [featureIndex, setFeatureIndex] = useState(0)
   const [swipeDirection, setSwipeDirection] = useState('next')
-  const [paused, setPaused] = useState(false)
   const item = contentTabs[tabIndex]
   const feature = item.features[featureIndex]
 
   useEffect(() => {
-    if (paused) return undefined
     const timer = window.setTimeout(() => {
       setSwipeDirection('next')
       if (featureIndex < item.features.length - 1) {
@@ -187,9 +185,10 @@ function UseCases() {
         setFeatureIndex(0)
         setTabIndex((value) => (value + 1) % contentTabs.length)
       }
-    }, 4800)
+    }, 8000)
+
     return () => window.clearTimeout(timer)
-  }, [featureIndex, item.features.length, paused, tabIndex])
+  }, [featureIndex, item.features.length, tabIndex])
 
   const selectTab = (index) => {
     if (index === tabIndex) return
@@ -205,7 +204,7 @@ function UseCases() {
   }
 
   return (
-    <section className="section use-cases reveal" id="use-cases" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section className="section use-cases reveal" id="use-cases">
       <div className="use-cases-header">
         <h2>Любой контент в фирменном стиле за считанные минуты</h2>
         <div className="pill-tabs content-tabs" role="tablist" aria-label="Тип контента">
@@ -218,7 +217,6 @@ function UseCases() {
         <div className="feature-list">
           {item.features.map((candidate, index) => (
             <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => selectFeature(index)}>
-              <span className="feature-number">{String(index + 1).padStart(2, '0')}</span>
               <span className="feature-copy"><strong>{candidate.title}</strong><small>{candidate.text}</small></span>
               <span className="feature-progress" />
             </button>
@@ -252,10 +250,11 @@ function CampaignSystem() {
 }
 
 function Comparison() {
+  const headers = ['Особенности', 'снэпбилд', 'Claude + Figma MCP', 'No-code платформы', 'Cursor', 'Традиционный']
   const rows = [
     ['Time-to-market', '5 минут', '30–60 мин', '2–3 дня', '1–2 дня', '3–5 недель'],
     ['Дизайн-система', <>100%<br />точность</>, 'Частично, из Figma', 'Шаблоны', 'Вручную в коде', 'Вручную, через ревью'],
-    ['Визуальный редактор', '+ AI', '—', <CheckIcon key="check" />, '—', '—'],
+    ['Визуальный редактор', <><img className="compare-check" src={asset('a4ce0581ce7807b6.svg')} alt="" />+ ИИ</>, '—', <img className="compare-check" src={asset('a4ce0581ce7807b6.svg')} alt="" />, '—', '—'],
     ['Требуемые навыки', 'Нет', 'Промпты + код', 'Дизайн', 'Разработка', 'Полная команда'],
   ]
 
@@ -263,10 +262,17 @@ function Comparison() {
     <section className="section compare reveal" id="compare">
       <SectionHeading split title="Почему команды выбирают Снэпбилд" text="Вы получаете не редактор, а результат: готовые маркетинговые материалы без проблем с настройками" />
       <div className="table-scroll">
-        <table>
-          <thead><tr>{['Особенности', 'снэпбилд', 'Claude + Figma MCP', 'No-code платформы', 'Cursor', 'Традиционный'].map((label) => <th key={label}>{label}</th>)}</tr></thead>
-          <tbody>{rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={index}>{cell}</td>)}</tr>)}</tbody>
-        </table>
+        <div className="compare-table" role="table" aria-label="Сравнение платформ">
+          <span className="compare-brand-border" aria-hidden="true" />
+          <div className="compare-row compare-row--header" role="row">
+            {headers.map((label) => <div className="compare-cell" role="columnheader" key={label}>{label}</div>)}
+          </div>
+          {rows.map((row) => (
+            <div className="compare-row" role="row" key={row[0]}>
+              {row.map((cell, index) => <div className="compare-cell" role="cell" key={index}>{cell}</div>)}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -396,16 +402,36 @@ function Contact() {
 }
 
 function Faq() {
-  const [open, setOpen] = useState(-1)
+  const [openItems, setOpenItems] = useState(() => new Set())
+
+  const toggle = (index) => {
+    setOpenItems((current) => {
+      const next = new Set(current)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+
+  const columns = [faqs.slice(0, 4), faqs.slice(4)]
+
   return (
     <section className="section faq reveal" id="faq">
       <SectionHeading title="Часто задаваемые вопросы" text="Ответы, которые помогут вам принять решение уверенно — без рисков для бренда и безопасности" />
       <div className="faq-grid">
-        {faqs.map(([question, answer], index) => (
-          <article className={open === index ? 'is-open' : ''} key={question}>
-            <button aria-expanded={open === index} onClick={() => setOpen(open === index ? -1 : index)}><span>{question}</span><i>+</i></button>
-            <div className="faq-answer"><p>{answer}</p></div>
-          </article>
+        {columns.map((column, columnIndex) => (
+          <div className="faq-column" key={columnIndex}>
+            {column.map(([question, answer], rowIndex) => {
+              const index = columnIndex * 4 + rowIndex
+              const isOpen = openItems.has(index)
+              return (
+                <article className={isOpen ? 'is-open' : ''} key={question}>
+                  <button aria-expanded={isOpen} onClick={() => toggle(index)}><span>{question}</span><i><img src={asset('c2663c497fb468e1.webp')} alt="" /></i></button>
+                  <div className="faq-answer"><p>{answer}</p></div>
+                </article>
+              )
+            })}
+          </div>
         ))}
       </div>
     </section>
