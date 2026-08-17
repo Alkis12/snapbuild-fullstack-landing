@@ -45,7 +45,11 @@ function Header() {
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', open)
-    return () => document.body.classList.remove('menu-open')
+    document.documentElement.classList.toggle('menu-open', open)
+    return () => {
+      document.body.classList.remove('menu-open')
+      document.documentElement.classList.remove('menu-open')
+    }
   }, [open])
 
   const close = () => setOpen(false)
@@ -72,8 +76,8 @@ function Header() {
         </button>
       </div>
       <div className="mobile-menu" aria-hidden={!open}>
-        <a href="#process" onClick={close}>Продукт</a>
         <a href="#use-cases" onClick={close}>Возможности</a>
+        <a href="#process" onClick={close}>Продукт</a>
         <a href="#features" onClick={close}>Безопасность</a>
         <a href="#faq" onClick={close}>FAQ</a>
         <a className="button button--dark" href="#contact" onClick={close}>Начать сейчас</a>
@@ -173,6 +177,7 @@ function UseCases() {
   const [tabIndex, setTabIndex] = useState(0)
   const [featureIndex, setFeatureIndex] = useState(0)
   const [swipeDirection, setSwipeDirection] = useState('next')
+  const swipeStart = useRef(null)
   const item = contentTabs[tabIndex]
   const feature = item.features[featureIndex]
 
@@ -203,6 +208,42 @@ function UseCases() {
     setFeatureIndex(index)
   }
 
+  const moveFeature = (direction) => {
+    setSwipeDirection(direction > 0 ? 'next' : 'prev')
+
+    if (direction > 0) {
+      if (featureIndex < item.features.length - 1) {
+        setFeatureIndex((value) => value + 1)
+      } else {
+        setTabIndex((value) => (value + 1) % contentTabs.length)
+        setFeatureIndex(0)
+      }
+      return
+    }
+
+    if (featureIndex > 0) {
+      setFeatureIndex((value) => value - 1)
+    } else {
+      const previousTab = (tabIndex - 1 + contentTabs.length) % contentTabs.length
+      setTabIndex(previousTab)
+      setFeatureIndex(contentTabs[previousTab].features.length - 1)
+    }
+  }
+
+  const startSwipe = (event) => {
+    swipeStart.current = { x: event.clientX, y: event.clientY }
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
+
+  const finishSwipe = (event) => {
+    if (!swipeStart.current) return
+    const deltaX = event.clientX - swipeStart.current.x
+    const deltaY = event.clientY - swipeStart.current.y
+    swipeStart.current = null
+    if (Math.abs(deltaX) < 44 || Math.abs(deltaX) <= Math.abs(deltaY)) return
+    moveFeature(deltaX < 0 ? 1 : -1)
+  }
+
   return (
     <section className="section use-cases reveal" id="use-cases">
       <div className="use-cases-header">
@@ -222,8 +263,14 @@ function UseCases() {
             </button>
           ))}
         </div>
-        <div className="content-visual" data-swipe={swipeDirection}>
-          <img key={`${item.id}-${featureIndex}`} src={asset(feature.image)} alt={`Пример раздела «${item.label}»: ${feature.title}`} />
+        <div
+          className="content-visual"
+          data-swipe={swipeDirection}
+          onPointerDown={startSwipe}
+          onPointerUp={finishSwipe}
+          onPointerCancel={() => { swipeStart.current = null }}
+        >
+          <img draggable="false" key={`${item.id}-${featureIndex}`} src={asset(feature.image)} alt={`Пример раздела «${item.label}»: ${feature.title}`} />
         </div>
       </div>
     </section>
@@ -442,7 +489,10 @@ function FinalCta() {
   return (
     <section className="final-cta reveal" id="cta">
       <span className="final-cta-shine" aria-hidden="true" />
-      <h2>{'Профессиональные материалы в\u00a0фирменном стиле'}<br />{'за\u00a0минуты, а\u00a0не\u00a0дни'}</h2>
+      <h2>
+        <span className="final-cta-title-wide">{'Профессиональные материалы в\u00a0фирменном стиле'}<br />{'за\u00a0минуты, а\u00a0не\u00a0дни'}</span>
+        <span className="final-cta-title-mobile">{'Профессиональные материалы в\u00a0фирменном стиле за\u00a0минуты, а\u00a0не\u00a0дни'}</span>
+      </h2>
       <a className="button button--light button--shine" href="#contact"><span>Начать сейчас</span></a>
     </section>
   )
@@ -450,12 +500,12 @@ function FinalCta() {
 
 function Footer() {
   return (
-    <footer className="footer" id="footer">
+    <footer className="footer reveal" id="footer">
       <div className="footer-top">
-        <div className="footer-brand"><Logo /><p>Платформа, где все создается в рамках вашего бренда и дизайн-системы</p></div>
+        <div className="footer-brand"><a href="#hero" aria-label="На главную"><Logo /></a><p>Платформа, где все создается в рамках вашего бренда и дизайн-системы</p></div>
         <div><strong>Навигация</strong><a href="#process">Продукт</a><a href="#use-cases">Возможности</a><a href="#compare">Преимущества</a><a href="#features">Безопасность</a><a href="#roadmap">Роадмап</a><a href="#faq">Частые вопросы</a></div>
         <div><strong>Документация</strong><a href="#faq">Политика конфиденциальности</a><a href="#faq">FAQ</a></div>
-        <div><strong>Контакты</strong><a href="#contact">Запросить демо</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a></div>
+        <div><strong>Контакты</strong><a href="#contact">Запросить демо</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a><a className="footer-email-mobile" href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
       </div>
       <div className="footer-bottom"><span>© Сгенерировано в Снэпбилде. Все права защищены.</span><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
     </footer>
