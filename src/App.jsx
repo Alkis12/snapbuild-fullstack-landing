@@ -121,26 +121,30 @@ function LogoCloud() {
           </div>
         ))}
       </div>
-      <p>С платформой работают команды, для которых бренд — закон</p>
+      <p>{'С\u00a0платформой работают команды, для\u00a0которых бренд\u00a0— закон'}</p>
     </section>
   )
 }
 
 function Process() {
   const items = [
-    ['Дизайн-система — ядро платформы', 'Ваши компоненты, цвета и шрифты — единственный источник стиля', '84a4450b3827bc21.webp'],
-    ['Гибкая конфигурация', 'Правила бренда задаются один раз — работают в каждой генерации', 'process-flexible-configuration.webp'],
-    ['Соответствие по умолчанию', 'AI не может нарушить бренд: сайты, изображения, видео, баннеры и презентации — строго по вашим правилам', 'afe03eb4a67d5dfb.webp'],
+    ['Дизайн-система\u00a0— ядро платформы', 'Ваши компоненты, цвета и\u00a0шрифты\u00a0— единственный источник стиля', '84a4450b3827bc21.webp', 'Дизайн-система Снэпбилд'],
+    ['Гибкая конфигурация', 'Правила бренда задаются один раз\u00a0— работают в\u00a0каждой генерации', 'process-flexible-configuration.webp'],
+    ['Соответствие по\u00a0умолчанию', 'AI\u00a0не\u00a0может нарушить бренд: сайты, изображения, видео, баннеры и\u00a0презентации\u00a0— строго по\u00a0вашим правилам', 'afe03eb4a67d5dfb.webp'],
   ]
 
   return (
     <section className="section process reveal" id="process">
-      <SectionHeading split title="Одна платформа — весь маркетинг" text="Сайты, изображения, видео, баннеры и презентации — из одной идеи, в вашем стиле" />
+      <SectionHeading
+        split
+        title={<><span className="process-title-wide">Одна платформа&nbsp;— весь маркетинг</span><span className="process-title-narrow">Одна платформа&nbsp;—<br />весь маркетинг</span></>}
+        text={'Сайты, изображения, видео, баннеры и\u00a0презентации\u00a0— из\u00a0одной идеи, в\u00a0вашем стиле'}
+      />
       <div className="process-grid">
-        {items.map(([title, text, image]) => (
+        {items.map(([title, text, image, mobileTitle]) => (
           <article className="process-card" key={title}>
             <img src={asset(image)} alt="" />
-            <h3>{title}</h3>
+            <h3>{mobileTitle ? <><span className="process-title-wide">{title}</span><span className="process-title-narrow">{mobileTitle}</span></> : title}</h3>
             <p>{text}</p>
           </article>
         ))}
@@ -307,7 +311,7 @@ function Comparison() {
 
   return (
     <section className="section compare reveal" id="compare">
-      <SectionHeading split title="Почему команды выбирают Снэпбилд" text="Вы получаете не редактор, а результат: готовые маркетинговые материалы без проблем с настройками" />
+      <SectionHeading split title="Почему команды выбирают Снэпбилд" text={'Вы\u00a0получаете не\u00a0редактор, а\u00a0результат: готовые маркетинговые материалы без\u00a0проблем с\u00a0настройками'} />
       <div className="table-scroll">
         <div className="compare-table" role="table" aria-label="Сравнение платформ">
           <span className="compare-brand-border" aria-hidden="true" />
@@ -334,7 +338,7 @@ function Security() {
 
   return (
     <section className="section security reveal" id="features">
-      <SectionHeading title="Безопасность без компромиссов" />
+      <SectionHeading title={'Безопасность без\u00a0компромиссов'} />
       <div className="security-grid">
         {cards.map(([title, text, image]) => <article key={title}><img src={asset(image)} alt="" /><h3>{title}</h3><p>{text}</p></article>)}
       </div>
@@ -395,7 +399,7 @@ function Roadmap() {
 
   return (
     <section className="section roadmap reveal" id="roadmap">
-      <SectionHeading title="Каждый день — новый релиз" text="Приоритизируем бэклог для ваших целей" />
+      <SectionHeading title={'Каждый день\u00a0— новый релиз'} text={'Приоритизируем бэклог для\u00a0ваших целей'} />
       <div className="roadmap-scroller" ref={trackRef} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}>
         <div className="roadmap-track">
           {roadmap.map(([title, text, date]) => <article key={title}><i /><h3>{title}</h3><p>{text}</p><time>{date}</time></article>)}
@@ -464,7 +468,7 @@ function Faq() {
 
   return (
     <section className="section faq reveal" id="faq">
-      <SectionHeading title="Часто задаваемые вопросы" text="Ответы, которые помогут вам принять решение уверенно — без рисков для бренда и безопасности" />
+      <SectionHeading title="Часто задаваемые вопросы" text={'Ответы, которые помогут вам принять решение уверенно\u00a0— без\u00a0рисков для\u00a0бренда и\u00a0безопасности'} />
       <div className="faq-grid">
         {columns.map((column, columnIndex) => (
           <div className="faq-column" key={columnIndex}>
@@ -502,12 +506,14 @@ function Footer() {
   return (
     <footer className="footer reveal" id="footer">
       <div className="footer-top">
-        <div className="footer-brand"><a href="#hero" aria-label="На главную"><Logo /></a><p>Платформа, где все создается в рамках вашего бренда и дизайн-системы</p></div>
-        <div><strong>Навигация</strong><a href="#process">Продукт</a><a href="#use-cases">Возможности</a><a href="#compare">Преимущества</a><a href="#features">Безопасность</a><a href="#roadmap">Роадмап</a><a href="#faq">Частые вопросы</a></div>
-        <div><strong>Документация</strong><a href="#faq">Политика конфиденциальности</a><a href="#faq">FAQ</a></div>
-        <div><strong>Контакты</strong><a href="#contact">Запросить демо</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a><a className="footer-email-mobile" href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
+        <div className="footer-brand"><a href="#hero" aria-label="На главную"><Logo /></a><p>{'Платформа, где все создается в\u00a0рамках вашего бренда и\u00a0дизайн-системы'}</p></div>
+        <nav className="footer-links" aria-label="Навигация в подвале">
+          <div><strong>Навигация</strong><a href="#process">Продукт</a><a href="#use-cases">Возможности</a><a href="#compare">Преимущества</a><a href="#features">Безопасность</a><a href="#roadmap">Роадмап</a><a href="#faq">Частые вопросы</a></div>
+          <div><strong>Документация</strong><a href="#faq">Политика конфиденциальности</a><a href="#faq">FAQ</a></div>
+          <div><strong>Контакты</strong><a href="#contact">Запросить демо</a><a href="https://t.me/snapbuild" target="_blank" rel="noreferrer">Telegram</a><a className="footer-email-mobile" href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
+        </nav>
       </div>
-      <div className="footer-bottom"><span>© Сгенерировано в Снэпбилде. Все права защищены.</span><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
+      <div className="footer-bottom"><span>{'© Сгенерировано в\u00a0Снэпбилде. Все права защищены.'}</span><a href="mailto:hey@snapbuild.ru">hey@snapbuild.ru</a></div>
     </footer>
   )
 }
