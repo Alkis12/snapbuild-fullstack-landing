@@ -92,8 +92,10 @@ function Hero() {
     <section className="hero" id="hero">
       <div className="hero-surface">
         <div className="hero-copy">
-          <h1>{'Платформа, где все создается в\u00a0рамках вашего бренда и\u00a0дизайн-системы'}</h1>
-          <p>Подключите дизайн-систему к Снэпбилду, чтобы каждый участник команды мог создавать профессиональные материалы в фирменном стиле за минуты, а не дни.</p>
+          <div className="hero-heading">
+            <h1>{'Платформа, где все создается в\u00a0рамках вашего бренда и\u00a0дизайн-системы'}</h1>
+            <p>Подключите дизайн-систему к Снэпбилду, чтобы каждый участник команды мог создавать профессиональные материалы в фирменном стиле за минуты, а не дни.</p>
+          </div>
           <a className="button button--light button--shine" href="#contact"><span>Начать сейчас</span></a>
         </div>
         <div className="hero-preview">
@@ -113,11 +115,61 @@ const clientLogos = [
 ]
 
 function LogoCloud() {
+  const trackRef = useRef(null)
+  const contentRef = useRef(null)
+
+  useEffect(() => {
+    const track = trackRef.current
+    const content = contentRef.current
+    if (!track || !content) return undefined
+
+    const mobileQuery = window.matchMedia('(max-width: 1023px)')
+    let frame = 0
+    let disposed = false
+
+    const setLoopOffset = () => {
+      if (!mobileQuery.matches || disposed) return
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(() => {
+        const width = content.getBoundingClientRect().width
+        const gap = Number.parseFloat(window.getComputedStyle(track).columnGap) || 0
+        if (width > 0) track.style.setProperty('--logo-marquee-loop-offset', `-${width + gap}px`)
+      })
+    }
+
+    const section = track.closest('.logo-cloud')
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => section?.classList.toggle('is-marquee-visible', entry.isIntersecting),
+      { rootMargin: '100px' },
+    )
+    visibilityObserver.observe(track)
+
+    const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(setLoopOffset) : null
+    resizeObserver?.observe(content)
+    mobileQuery.addEventListener('change', setLoopOffset)
+    window.addEventListener('resize', setLoopOffset, { passive: true })
+
+    const pendingImages = [...content.querySelectorAll('img')].filter((image) => !image.complete)
+    pendingImages.forEach((image) => image.addEventListener('load', setLoopOffset, { once: true }))
+    document.fonts?.ready.then(setLoopOffset)
+    setLoopOffset()
+
+    return () => {
+      disposed = true
+      window.cancelAnimationFrame(frame)
+      visibilityObserver.disconnect()
+      resizeObserver?.disconnect()
+      mobileQuery.removeEventListener('change', setLoopOffset)
+      window.removeEventListener('resize', setLoopOffset)
+      pendingImages.forEach((image) => image.removeEventListener('load', setLoopOffset))
+    }
+  }, [])
+
   return (
     <section className="logo-cloud reveal" id="logos" aria-label="Клиенты платформы">
-      <div className="logo-track">
+      <div className="logo-track" ref={trackRef} data-marquee-built>
         {[0, 1].map((copy) => (
-          <div className="logo-group" aria-hidden={copy === 1} key={copy}>
+          <div className="logo-group" aria-hidden={copy === 1} key={copy} ref={copy === 0 ? contentRef : undefined}>
             {clientLogos.map(([src, name], index) => <img key={`${copy}-${name}`} style={{ '--logo-index': index }} src={asset(src)} alt={copy ? '' : name} />)}
           </div>
         ))}
@@ -145,8 +197,10 @@ function Process() {
         {items.map(([title, text, image, mobileTitle]) => (
           <article className="process-card" key={title}>
             <img src={asset(image)} alt="" />
-            <h3>{mobileTitle ? <><span className="process-title-wide">{title}</span><span className="process-title-narrow">{mobileTitle}</span></> : title}</h3>
-            <p>{text}</p>
+            <div className="process-copy">
+              <h3>{mobileTitle ? <><span className="process-title-wide">{title}</span><span className="process-title-narrow">{mobileTitle}</span></> : title}</h3>
+              <p>{text}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -341,7 +395,15 @@ function Security() {
     <section className="section security reveal" id="features">
       <SectionHeading title={'Безопасность без\u00a0компромиссов'} />
       <div className="security-grid">
-        {cards.map(([title, text, image]) => <article key={title}><img src={asset(image)} alt="" /><h3>{title}</h3><p>{text}</p></article>)}
+        {cards.map(([title, text, image]) => (
+          <article key={title}>
+            <img src={asset(image)} alt="" />
+            <div className="security-copy">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   )

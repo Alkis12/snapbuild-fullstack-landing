@@ -311,6 +311,7 @@ h3 {
   min-height: 40px;
   padding-inline: 20px;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .menu-button,
@@ -470,6 +471,12 @@ h3 {
 .security-grid article,
 .onboarding-grid article {
   min-width: 0;
+}
+
+.process-copy,
+.security-copy,
+.hero-heading {
+  display: contents;
 }
 
 .process-card img {
@@ -1941,16 +1948,28 @@ h3 {
   }
 
   .logo-track {
+    --logo-marquee-gap: calc(40 / 3.75 * 1vw);
+    --logo-marquee-half-gap: calc(20 / 3.75 * 1vw);
+    --logo-marquee-loop-offset: calc(-50% - var(--logo-marquee-half-gap));
+    align-self: flex-start;
     width: max-content;
+    max-width: none;
+    gap: var(--logo-marquee-gap);
     justify-content: flex-start;
-    animation: mobile-marquee 22s linear infinite;
+    animation: mobile-marquee 12.1s linear infinite;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+
+  .logo-cloud.is-marquee-visible .logo-track[data-marquee-built] {
+    animation-play-state: running;
   }
 
   .logo-group {
     display: flex !important;
     flex: 0 0 auto;
-    gap: 42px;
-    padding-right: 42px;
+    gap: var(--logo-marquee-gap);
+    padding-right: 0;
   }
 
   .logo-group img {
@@ -1960,7 +1979,8 @@ h3 {
   }
 
   @keyframes mobile-marquee {
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(var(--logo-marquee-loop-offset), 0, 0); }
   }
 
   .process {
@@ -4464,7 +4484,7 @@ main {
 }
 
 main + .footer {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .header-bar {
@@ -5080,7 +5100,7 @@ main + .footer {
 
   .logo-group {
     gap: calc(40 / 3.75 * 1vw);
-    padding-right: calc(40 / 3.75 * 1vw);
+    padding-right: 0;
   }
 
   .logo-group img:nth-child(1) {
@@ -5479,5 +5499,285 @@ main + .footer {
 
   .footer-bottom > span {
     width: calc(216 / 3.75 * 1vw);
+  }
+
+  /* The live page lets these blocks grow from fixed mobile minima instead of
+     scaling their minimum height beyond the reference canvas. */
+  .use-cases {
+    min-height: 765px;
+  }
+
+  .security {
+    min-height: 1055px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .process-card {
+    width: calc(100% + 15.2px);
+  }
+
+  .process-card h3 {
+    margin-top: 12px;
+  }
+
+  .process-card p,
+  .security-grid article p {
+    margin-top: 4px;
+  }
+
+  .content-tabs {
+    width: calc(100% + calc(32 / 3.75 * 1vw));
+    max-width: none;
+    margin-inline: calc(-16 / 3.75 * 1vw);
+    padding-inline: calc(16 / 3.75 * 1vw);
+    padding-bottom: 8px;
+  }
+
+  .final-cta h2 {
+    width: calc(100% - 32px);
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: column;
+    min-height: 732px;
+  }
+
+  .footer-top {
+    min-height: 559px;
+  }
+
+  .footer-links {
+    flex-flow: row wrap;
+    align-items: flex-start;
+  }
+}
+
+/* Structural responsive parity with the live page. The source lets the card
+   media and copy establish section height; fixed canvas heights only happened
+   to line up at the original 1280/768 comparison widths. */
+@media (min-width: 1024px) {
+  .hero-surface,
+  .process-grid {
+    height: auto;
+  }
+
+  .process-card,
+  .security-grid article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .process-copy,
+  .security-copy {
+    display: flex;
+    height: max(100px, calc(100 / 14.4 * 1vw));
+    flex-direction: column;
+    gap: max(4px, calc(4 / 14.4 * 1vw));
+  }
+
+  .process-copy {
+    padding-top: max(16px, calc(16 / 14.4 * 1vw));
+  }
+
+  .security-grid {
+    height: auto;
+  }
+
+  .security-grid article {
+    height: auto;
+    gap: calc(20 / 14.4 * 1vw);
+    padding-bottom: 0;
+  }
+
+  .process-copy h3,
+  .process-copy p,
+  .security-copy h3,
+  .security-copy p {
+    margin-top: 0;
+  }
+
+  .faq-grid article,
+  .faq-grid article > button {
+    min-height: 0;
+  }
+
+  .faq-grid article > button {
+    padding: 0;
+  }
+
+  .faq-grid button i {
+    width: max(24px, calc(24 / 14.4 * 1vw));
+    height: max(24px, calc(24 / 14.4 * 1vw));
+  }
+
+  .footer {
+    min-height: 0;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .hero-copy p {
+    height: calc(46 / 14.4 * 1vw);
+  }
+
+  .use-cases-header {
+    min-height: 0;
+  }
+
+  .use-cases-header h2 {
+    font-size: clamp(34px, 3.2vw, 46px);
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-copy {
+    gap: max(20px, calc(20 / 14.4 * 1vw));
+  }
+
+  .hero-heading {
+    display: flex;
+    min-height: max(260px, calc(260 / 14.4 * 1vw));
+    flex-direction: column;
+    align-items: center;
+    gap: max(16px, calc(16 / 14.4 * 1vw));
+  }
+
+  .hero-heading p,
+  .hero-copy .button {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-surface {
+    height: auto;
+  }
+
+  .process-grid,
+  .security-grid {
+    height: auto;
+  }
+
+  .process-card,
+  .security-grid article {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .process-copy,
+  .security-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .process-copy {
+    height: auto;
+    padding-top: 16px;
+  }
+
+  .security-grid article {
+    gap: calc(20 / 8.1 * 1vw);
+  }
+
+  .security-copy {
+    height: 100px;
+  }
+
+  .process-copy h3,
+  .process-copy p,
+  .security-copy h3,
+  .security-copy p {
+    margin-top: 0;
+  }
+
+  .feature-list button:first-child .feature-copy small {
+    width: calc(299 / 7.68 * 1vw);
+  }
+
+  .feature-list button.is-active .feature-copy small {
+    max-height: none;
+  }
+
+  .compare {
+    gap: calc(40 / 8.1 * 1vw);
+  }
+
+  .use-cases,
+  .faq,
+  .footer {
+    padding-right: calc(20 / 7.68 * 1vw);
+    padding-left: calc(20 / 7.68 * 1vw);
+  }
+
+  .faq-grid article {
+    min-height: 61.875px;
+  }
+
+  .faq .section-heading h2,
+  .roadmap .section-heading h2 {
+    width: fit-content;
+    font-size: calc(44 / 7.68 * 1vw);
+  }
+
+  .final-cta h2 {
+    font-size: calc(36 / 7.68 * 1vw);
+  }
+
+  .footer .logo {
+    width: calc(153 / 7.68 * 1vw);
+    height: calc(24 / 7.68 * 1vw);
+  }
+
+  .footer-brand p {
+    font-size: calc(12 / 7.68 * 1vw);
+  }
+}
+
+@media (max-width: 767px) {
+  .feature-list button.is-active .feature-copy small {
+    max-height: none;
+  }
+
+  .faq-grid button i {
+    width: 20px;
+    height: 20px;
+  }
+
+  .process-card,
+  .security-grid article {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .process-copy,
+  .security-copy {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .process-copy {
+    padding-top: 12px;
+  }
+
+  .security-grid article {
+    gap: calc(12 / 3.75 * 1vw);
+  }
+
+  .process-copy h3,
+  .process-copy p,
+  .security-copy h3,
+  .security-grid article .security-copy p {
+    margin-top: 0;
+  }
+
+  .footer-links {
+    column-gap: calc(24 / 3.75 * 1vw - .1px);
   }
 }
