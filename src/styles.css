@@ -725,16 +725,24 @@ h3 {
 .feature-progress {
   position: absolute;
   right: 0;
-  bottom: -1px;
+  bottom: 0;
   left: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #ff835f, #ff78aa, #b67dff);
+  height: 1px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, .1);
+}
+
+.feature-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ffcdb3 0%, #ffa4b6 38%, #ffb2e9 68%, #d4d6ff 100%);
   transform: scaleX(0);
   transform-origin: left;
 }
 
-.feature-list button.is-active .feature-progress {
-  animation: feature-progress 8s linear both;
+.feature-list button.is-active .feature-progress-fill {
+  animation: feature-progress var(--feature-duration, 8000ms) linear both;
 }
 
 @keyframes feature-progress {
@@ -4078,6 +4086,10 @@ h3 {
 /* Final source-cascade parity: use-cases, roadmap and responsive table behavior. */
 .feature-progress {
   height: max(1px, calc(1 / 14.4 * 1vw));
+  background: rgba(0, 0, 0, .1);
+}
+
+.feature-progress-fill {
   background: linear-gradient(90deg, #ffcdb3 0%, #ffa4b6 38%, #ffb2e9 68%, #d4d6ff 100%);
 }
 
@@ -4497,16 +4509,6 @@ main + .footer {
 .feature-list button,
 .feature-list button:first-child {
   border: 0;
-}
-
-.feature-list button::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 1px;
-  background: rgba(0, 0, 0, .1);
 }
 
 .feature-progress {

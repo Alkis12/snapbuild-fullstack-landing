@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { contentTabs, faqs, roadmap, teamScenarios } from './data.js'
 
 const asset = (name) => `${import.meta.env.BASE_URL}assets/images/${name}`
+const USE_CASE_AUTOPLAY_MS = 8000
 
 function Logo({ className = '' }) {
   return <img className={`logo ${className}`} src={asset('582db07d8ccd60da.svg')} alt="Снэпбилд" />
@@ -194,7 +195,7 @@ function UseCases() {
         setFeatureIndex(0)
         setTabIndex((value) => (value + 1) % contentTabs.length)
       }
-    }, 8000)
+    }, USE_CASE_AUTOPLAY_MS)
 
     return () => window.clearTimeout(timer)
   }, [featureIndex, item.features.length, tabIndex])
@@ -249,7 +250,7 @@ function UseCases() {
   }
 
   return (
-    <section className="section use-cases reveal" id="use-cases">
+    <section className="section use-cases reveal" id="use-cases" style={{ '--feature-duration': `${USE_CASE_AUTOPLAY_MS}ms` }}>
       <div className="use-cases-header">
         <h2>Любой контент в фирменном стиле за считанные минуты</h2>
         <div className="pill-tabs content-tabs" role="tablist" aria-label="Тип контента">
@@ -263,7 +264,7 @@ function UseCases() {
           {item.features.map((candidate, index) => (
             <button className={featureIndex === index ? 'is-active' : ''} key={candidate.title} onClick={() => selectFeature(index)}>
               <span className="feature-copy"><strong>{candidate.title}</strong><small>{candidate.text}</small></span>
-              <span className="feature-progress" />
+              <span className="feature-progress" aria-hidden="true"><span className="feature-progress-fill" /></span>
             </button>
           ))}
         </div>
